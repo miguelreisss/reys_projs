@@ -7,7 +7,7 @@ def copy_files(source_path, destination_host, destination_path, username, passwo
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     try:
-        # Connect to source server
+        # Connect to destination ssh server
         ssh_client.connect(hostname=destination_host, username=username, password=password)
 
         # Create SFTP client
