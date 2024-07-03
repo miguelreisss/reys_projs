@@ -49,5 +49,3 @@ if __name__ == "__main__":
         IPBlocker.print_list_blocked_ip()
     else:
         print("Command incorrent")
-
-
