@@ -1,0 +1,10 @@
+How to use this python script:
+  for blocking a ip use this command:
+    python3 block_ip.py -ipb ipadress
+  for unblocking a ip use this command:
+    python3 block_ip.py -ipub ipadress
+  for view the list of blocked ips use this command:
+    python3 block_ip.py -iplb
+
+If you dont have good permission to modify iptables, you need to add sudo behind the command.
+
