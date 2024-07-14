@@ -1,11 +1,9 @@
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives import padding, hashes, serialization
+from cryptography.hazmat.primitives import padding, hashes
 from cryptography.hazmat.primitives.asymmetric import rsa, padding as rsa_padding
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-import os
-import base64
-import getpass
+import os, base64, getpass, sys
 
 # AES Encryption and Decryption
 def aes_encrypt(plaintext, password):
@@ -102,54 +100,36 @@ def rsa_decrypt(encrypted_message, private_key):
     )
     return plaintext.decode()
 
-# Save RSA keys to files
-def save_rsa_keys(private_key, public_key, private_key_path, public_key_path):
-    pem_private_key = private_key.private_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PrivateFormat.TraditionalOpenSSL,
-        encryption_algorithm=serialization.NoEncryption()
-    )
-    with open(private_key_path, 'wb') as private_file:
-        private_file.write(pem_private_key)
-    
-    pem_public_key = public_key.public_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PublicFormat.SubjectPublicKeyInfo
-    )
-    with open(public_key_path, 'wb') as public_file:
-        public_file.write(pem_public_key)
-
-# Load RSA keys from files
-def load_rsa_private_key(private_key_path):
-    with open(private_key_path, 'rb') as private_file:
-        pem_private_key = private_file.read()
-        private_key = serialization.load_pem_private_key(
-            pem_private_key,
-            password=None,
-            backend=default_backend()
-        )
-    return private_key
-
-def load_rsa_public_key(public_key_path):
-    with open(public_key_path, 'rb') as public_file:
-        pem_public_key = public_file.read()
-        public_key = serialization.load_pem_public_key(
-            pem_public_key,
-            backend=default_backend()
-        )
-    return public_key
+# Back to menu
+def back_to_menu():
+    back = input("Do you want to be back to menu? (yes/no): ")
+    if back == "yes":
+        try:
+            menu()
+        except Exception as e:
+            print(f"Failed to load menu: {e}")
+    elif back == "no":
+        try:
+            sys.exit()
+        except Exception as e:
+            print(f"Failed to close the programm: {e}")
+    else:
+        print("Invalid choice.")
+        try:
+            back_to_menu()
+        except Exception as e:
+            print(f"Failed to load if you want to be back to menu: {e}")
 
 # User Interface
-def main():
-    print("Encryption/Decryption Tool")
-    print("Choose an option:")
+def menu():
     print("1. AES Encryption")
     print("2. AES Decryption")
     print("3. RSA Encryption")
     print("4. RSA Decryption")
     print("5. Generate RSA Key Pair")
+    print("6. Close Programm")
 
-    choice = input("Enter your choice (1-5): ")
+    choice = input("Enter your choice (1-6): ")
 
     if choice == '1':
         plaintext = input("Enter the text to encrypt: ")
@@ -168,9 +148,8 @@ def main():
 
     elif choice == '3':
         plaintext = input("Enter the text to encrypt: ")
-        public_key_path = input("Enter the path to the RSA public key file: ")
+        public_keys = input("Enter the RSA public key: ")
         try:
-            public_key = load_rsa_public_key(public_key_path)
             encrypted_message = rsa_encrypt(plaintext, public_key)
             print(f"Encrypted message: {encrypted_message}")
         except Exception as e:
@@ -178,26 +157,35 @@ def main():
 
     elif choice == '4':
         encrypted_message = input("Enter the text to decrypt: ")
-        private_key_path = input("Enter the path to the RSA private key file: ")
+        private_key_path = input("Enter the RSA private key: ")
         try:
-            private_key = load_rsa_private_key(private_key_path)
             decrypted_message = rsa_decrypt(encrypted_message, private_key)
             print(f"Decrypted message: {decrypted_message}")
         except Exception as e:
             print(f"RSA decryption failed: {e}")
 
     elif choice == '5':
-        private_key_path = input("Enter the path to save the RSA private key: ")
-        public_key_path = input("Enter the path to save the RSA public key: ")
         try:
             private_key, public_key = generate_rsa_keys()
-            save_rsa_keys(private_key, public_key, private_key_path, public_key_path)
-            print(f"RSA key pair generated and saved to {private_key_path} and {public_key_path}")
+            print("RSA key pair generated\n")
+            print(f"Public RSA Key: {public_key}")
+            print(f"Private RSA Key: {private_key}")
         except Exception as e:
             print(f"Key generation failed: {e}")
 
+    elif choice == '6':
+        try:
+            sys.exit()
+        except Exception as e:
+            print(f"Failed to close the programm: {e}")
+
     else:
-        print("Invalid choice. Please run the program again.")
+        print("Invalid choice.")
+    
+    try:
+        back_to_menu()
+    except Exception as e:
+        print(f"Failed to load if you want to be back to menu: {e}")
 
 if __name__ == "__main__":
-    main()
+    menu()
